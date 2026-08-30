@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        color: #1e293b;
+        font-size: 8.5pt;
+        line-height: 1.35;
+        padding: 10mm 12mm;
+    }
+    .page-container {
+        min-height: 275mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .page-break {
+        page-break-before: always;
+    }
+    .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 5px;
+    }
+    .header-table td { vertical-align: middle; }
+    .logo-img { width: 48px; height: 48px; object-fit: cover; border-radius: 50%; display: block; }
+    .brand-title { font-size: 14pt; font-weight: 800; color: #0f172a; text-transform: uppercase; margin: 0; }
+    .brand-subtitle { font-size: 7.8pt; color: #0284c7; font-weight: 700; text-transform: uppercase; }
+    .header-tag { font-size: 7.5pt; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .client-card {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #0284c7;
+        padding: 5px 8px;
+        margin: 6px 0;
+        border-radius: 4px;
+    }
+    .client-card td { font-size: 8pt; padding: 1.5px 0; }
+
+    .intro-banner {
+        background-color: #f1f5f9;
+        border-left: 3px solid #0f172a;
+        padding: 5px 8px;
+        font-size: 7.8pt;
+        color: #334155;
+        margin-bottom: 8px;
+        border-radius: 2px;
+    }
+
+    .section-header {
+        background-color: #0f172a;
+        color: white;
+        font-size: 8.2pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 3.5px 7px;
+        border-radius: 3px;
+        margin-top: 7px;
+        margin-bottom: 4px;
+    }
+
+    .question-box {
+        margin-bottom: 5px;
+    }
+    .question-title {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 7.8pt;
+        margin-bottom: 1.5px;
+    }
+    .answer-line {
+        height: 14px;
+        border-bottom: 1px dotted #cbd5e1;
+        width: 100%;
+    }
+
+    .grid-checkboxes {
+        display: table;
+        width: 100%;
+        margin-top: 3px;
+        margin-bottom: 4px;
+    }
+    .checkbox-row {
+        display: table-row;
+    }
+    .checkbox-cell {
+        display: table-cell;
+        width: 33.33%;
+        font-size: 7.5pt;
+        padding: 2px 0;
+        vertical-align: middle;
+    }
+    .box-check {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border: 1.2px solid #64748b;
+        margin-right: 4px;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 8px;
+        font-size: 7pt;
+        font-weight: bold;
+    }
+
+    .footer-doc {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 4px;
+        font-size: 7.2pt;
+        color: #64748b;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+</head>
+<body>
+
+    <!-- PÁGINA 1 -->
+    <div class="page-container">
+        <div>
+            <table class="header-table">
+                <tr>
+                    {% if logo_base64 %}
+                    <td style="width: 55px;"><img src="{{ logo_base64 }}" class="logo-img" alt="Logo"></td>
+                    <td style="padding-left: 6px;">
+                    {% else %}
+                    <td>
+                    {% endif %}
+                        <div class="brand-title">{{ empresa }}</div>
+                        <div class="brand-subtitle">BRIEF DE REQUERIMIENTOS & ARQUITECTURA WEB</div>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="header-tag">CUESTIONARIO DE DESARROLLO</div>
+                        <div style="font-size: 7.5pt; color: #64748b;">FASE DE LEVANTAMIENTO DE INFORMACIÓN</div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="client-card">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 50%;"><strong>Cliente / Organización:</strong> {{ cliente }}</td>
+                        <td style="width: 50%;"><strong>Fecha:</strong> {{ fecha }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Responsable:</strong> {{ responsable or "Por definir" }}</td>
+                        <td><strong>Proyecto:</strong> {{ proyecto }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="intro-banner">
+                <strong>Estimado cliente:</strong> {{ introduccion_brief }}
+            </div>
+
+            <!-- Sección 1 -->
+            <div class="section-header">1. INFORMACIÓN GENERAL DEL PROYECTO / ORGANIZACIÓN</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding-right: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuál es el nombre oficial y marca?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuál es la historia, misión o propuesta de valor?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding-left: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿En qué ciudad, zona o cobertura se encuentra?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Qué servicios, productos o categorías manejan?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Sección 2 -->
+            <div class="section-header">2. OBJETIVO DE LA PÁGINA WEB</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding-right: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuál es el objetivo principal del sitio?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Qué les gustaría que el usuario haga al entrar?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding-left: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿A qué público específico se dirigen?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Hay sitios web de referencia que les gusten?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Sección 3 -->
+            <div class="section-header">3. CONTENIDO Y SECCIONES REQUERIDAS</div>
+            <div style="font-size: 7.5pt; color: #475569; margin-bottom: 2px;">Marque las secciones deseadas e indique las adicionales:</div>
+            
+            <div class="grid-checkboxes">
+                {% for chunk in checkboxes_secciones|batch(3) %}
+                <div class="checkbox-row">
+                    {% for item in chunk %}
+                    <div class="checkbox-cell">
+                        <span class="box-check">{% if item.marcado %}✓{% endif %}</span> {{ item.nombre }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="question-box" style="margin-top: 4px;">
+                <div class="question-title">• Secciones o contenidos adicionales requeridos:</div>
+                <div class="answer-line"></div>
+            </div>
+        </div>
+
+        <div class="footer-doc">
+            <span>{{ empresa }} • Cuestionario de Requerimientos Web</span>
+            <span>Página 1 de 2</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2 -->
+    <div class="page-container page-break">
+        <div>
+            <table class="header-table">
+                <tr>
+                    {% if logo_base64 %}
+                    <td style="width: 55px;"><img src="{{ logo_base64 }}" class="logo-img" alt="Logo"></td>
+                    <td style="padding-left: 6px;">
+                    {% else %}
+                    <td>
+                    {% endif %}
+                        <div class="brand-title">{{ empresa }}</div>
+                        <div class="brand-subtitle">BRIEF DE REQUERIMIENTOS & ARQUITECTURA WEB</div>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="header-tag">CUESTIONARIO DE DESARROLLO</div>
+                        <div style="font-size: 7.5pt; color: #64748b;">FASE DE LEVANTAMIENTO DE INFORMACIÓN</div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Sección 4 -->
+            <div class="section-header" style="margin-top: 8px;">4. CONVERSIÓN, CONTACTO & PAGOS</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding-right: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Actualmente cómo captan prospectos o inscripciones?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Requieren formularios interactivos o cotizadores?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding-left: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Desean integrar botón persistente de WhatsApp?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Necesitan pasarela de pagos en línea o registro?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Sección 5 -->
+            <div class="section-header">5. MATERIAL Y CONTENIDO DISPONIBLE</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding-right: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuentan con logotipo en vectores / alta resolución?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuentan con fotografías profesionales y videos?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding-left: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Quién redactará la información y textos de las secciones?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Necesitan apoyo para redacción y creación de contenido?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Sección 6 -->
+            <div class="section-header">6. INFRAESTRUCTURA Y ADMINISTRACIÓN</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding-right: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Cuentan actualmente con dominio (.com / .mx) y hosting?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Tienen acceso técnico al panel de la página anterior?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding-left: 8px; vertical-align: top;">
+                        <div class="question-box">
+                            <div class="question-title">• ¿Quién se encargará del mantenimiento y actualizaciones?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                        <div class="question-box">
+                            <div class="question-title">• ¿Requieren panel autoadministrable (CMS / Blog)?</div>
+                            <div class="answer-line"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="intro-banner" style="margin-top: 14px; background-color: #f8fafc; border-left-color: #0284c7;">
+                <strong>Próximos pasos:</strong> Con la información de este cuestionario prepararemos la propuesta formal para la página web, incluyendo arquitectura, diseño UI/UX, desarrollo técnico, secciones y cotización a la medida.
+            </div>
+        </div>
+
+        <div class="footer-doc">
+            <span>{{ empresa }} • Cuestionario de Requerimientos Web</span>
+            <span>Página 2 de 2</span>
+        </div>
+    </div>
+
+</body>
+</html>

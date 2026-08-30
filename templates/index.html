@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Documental • Elevate Web Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-4 sm:p-6">
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Formulario Principal -->
+        <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-4 mb-6">
+                <div>
+                    <h1 id="tituloFormulario" class="text-2xl font-bold text-slate-900 tracking-tight">Nueva Cotización</h1>
+                    <p id="subtituloFormulario" class="text-xs text-slate-500">Selecciona el tipo de documento a generar.</p>
+                </div>
+                <!-- Selector de Tipo de Documento (3 Modos) -->
+                <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-semibold">
+                    <button type="button" id="btnModoCotizacion" onclick="cambiarModo('COTIZACION')" class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition">Cotización</button>
+                    <button type="button" id="btnModoContrato" onclick="cambiarModo('CONTRATO')" class="px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-900 transition">Contrato</button>
+                    <button type="button" id="btnModoBrief" onclick="cambiarModo('BRIEF')" class="px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-900 transition">Brief / Cuestionario</button>
+                </div>
+            </div>
+
+            <form id="cotizacionForm" class="space-y-6">
+                <input type="hidden" id="tipoDocumento" value="COTIZACION">
+
+                <!-- Datos Generales -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Folio / Ref</label>
+                        <input type="text" id="folio" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" value="EWS-2026-085">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Fecha</label>
+                        <input type="date" id="fechaPicker" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none cursor-pointer">
+                    </div>
+                    <div id="campoValidez">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Validez</label>
+                        <input type="text" id="validez" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" value="15 días naturales">
+                    </div>
+                    <div id="campoTotal">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Total ($ MXN)</label>
+                        <input type="number" id="total" step="0.01" oninput="actualizarFasesSegunModalidad()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none font-bold text-sky-600" value="5000.00">
+                    </div>
+                </div>
+
+                <!-- Datos Cliente y Proyecto -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Cliente / Organización</label>
+                        <input type="text" id="cliente" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Ej. Club Deportivo Acuático">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Responsable / Contacto</label>
+                        <input type="text" id="responsable" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Nombre de la persona a cargo">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Marca / Negocio</label>
+                        <input type="text" id="marca" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Ej. Tu Primer Vals">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nombre del Proyecto</label>
+                        <input type="text" id="proyecto" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" value="Sitio Web Oficial & Portal Deportivo">
+                    </div>
+                </div>
+
+                <!-- SECCIONES EXCLUSIVAS DE COTIZACIÓN / CONTRATO -->
+                <div id="bloqueCotizacionContrato" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Modalidad de Entregas</label>
+                        <select id="modalidadSelect" onchange="actualizarFasesSegunModalidad()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none font-medium cursor-pointer">
+                            <option value="agil_3">Esquema Ágil por Entregas (40% - 30% - 30%)</option>
+                            <option value="anticipo_50_50">50% Anticipo y 50% al Finalizar (2 Fases)</option>
+                            <option value="pago_unico">Pago Único al Contado (1 Fase - 100%)</option>
+                            <option value="hitos_4">4 Entregables / Sprints (25% c/u)</option>
+                            <option value="personalizado">Personalizado (Manual)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Resumen del Proyecto</label>
+                        <textarea id="resumen" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">Modernización integral visual, técnica y funcional de la landing page.</textarea>
+                    </div>
+
+                    <!-- 1. Módulos -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-bold text-slate-800">1. Módulos y Requerimientos</label>
+                            <button type="button" onclick="agregarModulo('', '', 'NUEVO')" class="text-xs bg-sky-50 text-sky-600 font-semibold px-2.5 py-1.5 rounded-md hover:bg-sky-100">+ Agregar Módulo</button>
+                        </div>
+                        <div id="modulosContainer" class="space-y-3"></div>
+                    </div>
+
+                    <!-- 2. Costos -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-bold text-slate-800">2. Desglose de Inversión</label>
+                            <button type="button" onclick="agregarConceptoCosto('', '', 0)" class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-2.5 py-1.5 rounded-md hover:bg-indigo-100">+ Agregar Concepto</button>
+                        </div>
+                        <div id="costosContainer" class="space-y-3"></div>
+                    </div>
+
+                    <!-- 3. Fases -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-bold text-slate-800">3. Fases, Pagos y Calendario</label>
+                            <button type="button" onclick="agregarFase('', '', 0)" class="text-xs bg-emerald-50 text-emerald-600 font-semibold px-2.5 py-1.5 rounded-md hover:bg-emerald-100">+ Agregar Fase</button>
+                        </div>
+                        <div id="fasesContainer" class="space-y-3"></div>
+                    </div>
+
+                    <!-- 4. Términos -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-bold text-slate-800">4. Términos y Cláusulas</label>
+                            <button type="button" onclick="agregarTermino()" class="text-xs bg-amber-50 text-amber-700 font-semibold px-2.5 py-1.5 rounded-md hover:bg-amber-100">+ Agregar Nota/Cláusula</button>
+                        </div>
+                        <div id="terminosContainer" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- SECCIONES EXCLUSIVAS DEL BRIEF -->
+                <div id="bloqueBrief" class="hidden space-y-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Introducción del Cuestionario</label>
+                        <textarea id="introduccionBrief" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">Para entender a fondo las necesidades del club/empresa y preparar una propuesta técnica y de diseño adecuada, le agradeceremos responder el siguiente cuestionario.</textarea>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-sm font-bold text-slate-800">Secciones predefinidas para marcar (Checkboxes)</label>
+                            <button type="button" onclick="agregarCheckboxBrief('')" class="text-xs bg-sky-50 text-sky-600 font-semibold px-2.5 py-1.5 rounded-md hover:bg-sky-100">+ Agregar Opción</button>
+                        </div>
+                        <div id="checkboxesBriefContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-4 pt-2">
+                    <button type="button" onclick="previsualizarPDF()" id="btnPreview" class="w-1/2 bg-slate-100 text-slate-700 border border-slate-300 font-semibold py-3 rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-2">
+                        👁️ Vista Previa Cotización
+                    </button>
+                    <button type="submit" id="btnSubmitDoc" class="w-1/2 bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition">
+                        💾 Generar Cotización PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Historial de Documentos</h2>
+            <div id="listaCotizaciones" class="space-y-2.5 text-sm text-slate-600">
+                <p class="text-xs text-slate-400">Cargando...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let modoActual = 'COTIZACION';
+
+        function cambiarModo(modo) {
+            modoActual = modo;
+            document.getElementById('tipoDocumento').value = modo;
+            
+            const btnCot = document.getElementById('btnModoCotizacion');
+            const btnCon = document.getElementById('btnModoContrato');
+            const btnBri = document.getElementById('btnModoBrief');
+            
+            const titulo = document.getElementById('tituloFormulario');
+            const btnSubmit = document.getElementById('btnSubmitDoc');
+            const btnPreview = document.getElementById('btnPreview');
+            
+            const bloqueCC = document.getElementById('bloqueCotizacionContrato');
+            const bloqueBrief = document.getElementById('bloqueBrief');
+            const campoValidez = document.getElementById('campoValidez');
+            const campoTotal = document.getElementById('campoTotal');
+
+            // Reset estilos
+            [btnCot, btnCon, btnBri].forEach(b => b.className = "px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-900 transition");
+
+            if (modo === 'BRIEF') {
+                btnBri.className = "px-3 py-1.5 rounded-md bg-slate-900 text-white shadow-sm transition";
+                titulo.innerText = "Nuevo Brief de Requerimientos";
+                btnSubmit.innerText = "💾 Generar Brief PDF";
+                btnPreview.innerHTML = "👁️ Vista Previa Brief";
+                bloqueCC.classList.add('hidden');
+                bloqueBrief.classList.remove('hidden');
+                campoValidez.classList.add('hidden');
+                campoTotal.classList.add('hidden');
+            } else if (modo === 'CONTRATO') {
+                btnCon.className = "px-3 py-1.5 rounded-md bg-slate-900 text-white shadow-sm transition";
+                titulo.innerText = "Nuevo Contrato / Plan de Trabajo";
+                btnSubmit.innerText = "💾 Generar Contrato Oficial";
+                btnPreview.innerHTML = "👁️ Vista Previa Contrato";
+                bloqueCC.classList.remove('hidden');
+                bloqueBrief.classList.add('hidden');
+                campoValidez.classList.remove('hidden');
+                campoTotal.classList.remove('hidden');
+                document.querySelectorAll('.campo-fecha-fase').forEach(el => el.classList.remove('hidden'));
+            } else {
+                btnCot.className = "px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition";
+                titulo.innerText = "Nueva Cotización";
+                btnSubmit.innerText = "💾 Generar Cotización PDF";
+                btnPreview.innerHTML = "👁️ Vista Previa Cotización";
+                bloqueCC.classList.remove('hidden');
+                bloqueBrief.classList.add('hidden');
+                campoValidez.classList.remove('hidden');
+                campoTotal.classList.remove('hidden');
+                document.querySelectorAll('.campo-fecha-fase').forEach(el => el.classList.add('hidden'));
+            }
+        }
+
+        function inicializarFechaHoy() {
+            const hoy = new Date();
+            const anio = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            document.getElementById('fechaPicker').value = `${anio}-${mes}-${dia}`;
+        }
+
+        function formatearFechaEspanol(fechaISO) {
+            if (!fechaISO) return '';
+            const [anio, mes, dia] = fechaISO.split('-');
+            const fechaObj = new Date(anio, parseInt(mes) - 1, dia);
+            return fechaObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function agregarModulo(nombre = '', desc = '', tipo = 'NUEVO') {
+            const div = document.createElement('div');
+            div.className = 'modulo-item bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2';
+            div.innerHTML = `
+                <div class="flex gap-2 sm:gap-3 items-center">
+                    <input type="text" placeholder="Nombre del Módulo" class="modulo-nombre flex-1 bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs font-semibold focus:outline-none" value="${nombre}">
+                    <select class="modulo-tipo border border-slate-300 rounded-md px-2.5 py-1.5 text-xs bg-white font-bold cursor-pointer ${tipo === 'NUEVO' ? 'text-sky-600' : 'text-slate-600'}">
+                        <option value="NUEVO" ${tipo === 'NUEVO' ? 'selected' : ''}>NUEVO</option>
+                        <option value="ACTUALIZACIÓN" ${tipo === 'ACTUALIZACIÓN' ? 'selected' : ''}>ACTUALIZACIÓN</option>
+                        <option value="NINGUNO" ${tipo === 'NINGUNO' ? 'selected' : ''}>NINGUNO</option>
+                    </select>
+                    <button type="button" onclick="this.closest('.modulo-item').remove()" class="text-slate-400 hover:text-red-600 font-bold px-2 py-1 text-sm">✕</button>
+                </div>
+                <div>
+                    <input type="text" placeholder="Descripción funcional..." class="modulo-desc w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-xs text-slate-600 focus:outline-none" value="${desc}">
+                </div>
+            `;
+            document.getElementById('modulosContainer').appendChild(div);
+        }
+
+        function agregarConceptoCosto(concepto = '', desc = '', precio = '') {
+            const div = document.createElement('div');
+            div.className = 'costo-item flex gap-3 items-start bg-slate-50 p-3 rounded-lg border border-slate-200';
+            div.innerHTML = `
+                <input type="text" placeholder="Concepto" class="costo-concepto w-1/3 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none font-medium" value="${concepto}">
+                <input type="text" placeholder="Detalle" class="costo-desc flex-1 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none" value="${desc}">
+                <input type="number" placeholder="Costo" oninput="calcularTotalDesdeConceptos()" class="costo-precio w-24 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none font-bold text-slate-800" value="${precio}">
+                <button type="button" onclick="this.parentElement.remove(); calcularTotalDesdeConceptos();" class="text-slate-400 hover:text-red-600 font-bold px-2 py-1 text-sm">✕</button>
+            `;
+            document.getElementById('costosContainer').appendChild(div);
+        }
+
+        function calcularTotalDesdeConceptos() {
+            const precios = Array.from(document.querySelectorAll('.costo-precio')).map(el => parseFloat(el.value || 0));
+            if (precios.length > 0) {
+                const totalCalculado = precios.reduce((acc, curr) => acc + curr, 0);
+                if (totalCalculado > 0) {
+                    document.getElementById('total').value = totalCalculado.toFixed(2);
+                    actualizarFasesSegunModalidad();
+                }
+            }
+        }
+
+        function agregarFase(nombre = '', desc = '', monto = '', fecha_entrega = '', fecha_pago = '') {
+            const div = document.createElement('div');
+            div.className = 'fase-item bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2';
+            div.innerHTML = `
+                <div class="flex gap-2 items-center">
+                    <input type="text" placeholder="Fase" class="fase-nombre flex-1 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none" value="${nombre}">
+                    <input type="number" placeholder="Monto" class="fase-monto w-24 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none" value="${monto}">
+                    <button type="button" onclick="this.closest('.fase-item').remove()" class="text-slate-400 hover:text-red-600 font-bold px-2 py-1 text-sm">✕</button>
+                </div>
+                <div>
+                    <input type="text" placeholder="Entregables..." class="fase-desc w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none" value="${desc}">
+                </div>
+                <div class="campo-fecha-fase ${modoActual === 'CONTRATO' ? '' : 'hidden'} grid grid-cols-2 gap-3 pt-1 border-t border-slate-200">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Fecha de Entrega</label>
+                        <input type="date" class="fase-entrega w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none" value="${fecha_entrega}">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Fecha Límite Pago</label>
+                        <input type="date" class="fase-pago w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none" value="${fecha_pago}">
+                    </div>
+                </div>
+            `;
+            document.getElementById('fasesContainer').appendChild(div);
+        }
+
+        function agregarTermino(texto = '') {
+            const div = document.createElement('div');
+            div.className = 'termino-item flex gap-2 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200';
+            div.innerHTML = `
+                <span class="text-slate-400 text-xs">•</span>
+                <input type="text" placeholder="Nota o término..." class="termino-texto flex-1 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs focus:outline-none" value="${texto}">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-600 font-bold px-2 py-1 text-sm">✕</button>
+            `;
+            document.getElementById('terminosContainer').appendChild(div);
+        }
+
+        function agregarCheckboxBrief(nombre = '', marcado = false) {
+            const div = document.createElement('div');
+            div.className = 'checkbox-item flex gap-2 items-center bg-slate-50 p-2 rounded border border-slate-200 text-xs';
+            div.innerHTML = `
+                <input type="checkbox" class="cb-check cursor-pointer" ${marcado ? 'checked' : ''}>
+                <input type="text" class="cb-nombre flex-1 bg-transparent border-none focus:outline-none text-xs" value="${nombre}" placeholder="Nombre de la sección">
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-600 font-bold px-1">✕</button>
+            `;
+            document.getElementById('checkboxesBriefContainer').appendChild(div);
+        }
+
+        function actualizarFasesSegunModalidad() {
+            const modalidad = document.getElementById('modalidadSelect').value;
+            const total = parseFloat(document.getElementById('total').value || 0);
+            const container = document.getElementById('fasesContainer');
+            if (modalidad === 'personalizado') return;
+
+            container.innerHTML = '';
+            if (modalidad === 'agil_3') {
+                agregarFase('Fase 1: Estructura Base', 'Reestructuración visual del sitio, maquetación adaptativa y carga de galería.', Math.round(total * 0.40));
+                agregarFase('Fase 2: Funcionalidades', 'Formulario de contacto, módulo de FAQ y botón flotante de WhatsApp.', Math.round(total * 0.30));
+                agregarFase('Fase 3: Pruebas & Publicación', 'Revisiones finales, pruebas de recepción de datos y despliegue oficial.', Math.round(total * 0.30));
+            } else if (modalidad === 'anticipo_50_50') {
+                agregarFase('Anticipo Inicial (50%)', 'Inicio de desarrollo y configuración base.', Math.round(total * 0.50));
+                agregarFase('Liquidación Final (50%)', 'Entrega total funcional y publicación en producción.', Math.round(total * 0.50));
+            } else if (modalidad === 'pago_unico') {
+                agregarFase('Pago Único (100%)', 'Desarrollo integral, entrega completa y despliegue final.', total);
+            } else if (modalidad === 'hitos_4') {
+                const montoCuarto = Math.round(total * 0.25);
+                agregarFase('Hito 1: Prototipo & Diseño', 'Aprobación de estructura visual y diseño responsivo.', montoCuarto);
+                agregarFase('Hito 2: Desarrollo Base', 'Implementación de componentes principales.', montoCuarto);
+                agregarFase('Hito 3: Integraciones', 'Formularios y herramientas interactivas.', montoCuarto);
+                agregarFase('Hito 4: Despliegue', 'Pruebas finales y lanzamiento.', montoCuarto);
+            }
+        }
+
+        function obtenerPayload() {
+            const items_alcance = Array.from(document.querySelectorAll('.modulo-item')).map(el => ({
+                modulo: el.querySelector('.modulo-nombre').value,
+                descripcion: el.querySelector('.modulo-desc').value,
+                tipo: el.querySelector('.modulo-tipo').value
+            }));
+
+            const desglose_costos = Array.from(document.querySelectorAll('.costo-item')).map(el => ({
+                concepto: el.querySelector('.costo-concepto').value,
+                descripcion: el.querySelector('.costo-desc').value,
+                precio: parseFloat(el.querySelector('.costo-precio').value || 0)
+            }));
+
+            const fases = Array.from(document.querySelectorAll('.fase-item')).map(el => ({
+                nombre: el.querySelector('.fase-nombre').value,
+                descripcion: el.querySelector('.fase-desc').value,
+                monto: parseFloat(el.querySelector('.fase-monto').value || 0),
+                fecha_entrega: el.querySelector('.fase-entrega')?.value ? formatearFechaEspanol(el.querySelector('.fase-entrega').value) : '',
+                fecha_pago: el.querySelector('.fase-pago')?.value ? formatearFechaEspanol(el.querySelector('.fase-pago').value) : ''
+            }));
+
+            const terminos = Array.from(document.querySelectorAll('.termino-item')).map(el => 
+                el.querySelector('.termino-texto').value
+            ).filter(t => t.trim() !== '');
+
+            const checkboxes_secciones = Array.from(document.querySelectorAll('.checkbox-item')).map(el => ({
+                nombre: el.querySelector('.cb-nombre').value,
+                marcado: el.querySelector('.cb-check').checked
+            }));
+
+            const fechaSeleccionada = document.getElementById('fechaPicker').value;
+            const tipoDoc = document.getElementById('tipoDocumento').value;
+
+            return {
+                tipo_documento: tipoDoc,
+                folio: document.getElementById('folio').value,
+                empresa: "Elevate Web Solutions",
+                subtitulo_doc: tipoDoc === 'BRIEF' ? "Brief de Requerimientos & Arquitectura Web" : (tipoDoc === 'CONTRATO' ? "Contrato de Servicios y Calendario" : "Propuesta de Desarrollo Web & Renovación"),
+                fecha: formatearFechaEspanol(fechaSeleccionada),
+                validez: document.getElementById('validez').value,
+                cliente: document.getElementById('cliente').value,
+                responsable: document.getElementById('responsable').value,
+                proyecto: document.getElementById('proyecto').value,
+                marca: document.getElementById('marca').value,
+                modalidad: document.getElementById('modalidadSelect').options[document.getElementById('modalidadSelect').selectedIndex].text,
+                resumen: document.getElementById('resumen').value,
+                total: parseFloat(document.getElementById('total').value || 0),
+                items_alcance: items_alcance,
+                desglose_costos: desglose_costos,
+                fases: fases,
+                terminos: terminos,
+                introduccion_brief: document.getElementById('introduccionBrief').value,
+                checkboxes_secciones: checkboxes_secciones
+            };
+        }
+
+        async function previsualizarPDF() {
+            const payload = obtenerPayload();
+            const res = await fetch('/preview/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            } else {
+                alert('Error al generar la vista previa.');
+            }
+        }
+
+        async function cargarLista() {
+            const res = await fetch('/api/documentos');
+            const data = await res.json();
+            const container = document.getElementById('listaCotizaciones');
+            container.innerHTML = '';
+            
+            if (data.documentos.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">No hay documentos generados.</p>';
+                return;
+            }
+
+            data.documentos.forEach(docId => {
+                let badgeClass = "bg-sky-100 text-sky-800";
+                let badgeText = "COTIZACIÓN";
+                if (docId.startsWith('CONTRATO')) { badgeClass = "bg-emerald-100 text-emerald-800"; badgeText = "CONTRATO"; }
+                if (docId.startsWith('BRIEF')) { badgeClass = "bg-purple-100 text-purple-800"; badgeText = "BRIEF"; }
+
+                const item = document.createElement('div');
+                item.className = 'p-2.5 bg-slate-50 rounded-lg border border-slate-200 space-y-1.5';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold text-xs text-slate-800">${docId}</span>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="flex gap-1.5 justify-end pt-1">
+                        <button onclick="cargarComoBase('${docId}')" class="text-[11px] bg-slate-200 text-slate-800 px-2 py-0.5 rounded hover:bg-slate-300" title="Cargar datos en el formulario">📋 Usar como Base</button>
+                        <a href="/documentos/${docId}" target="_blank" class="text-[11px] bg-sky-500 text-white px-2 py-0.5 rounded hover:bg-sky-600">Ver PDF</a>
+                        <button onclick="eliminar('${docId}')" class="text-[11px] bg-red-100 text-red-600 px-2 py-0.5 rounded hover:bg-red-200">✕</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        async function cargarComoBase(docId) {
+            const res = await fetch(`/api/data/${docId}`);
+            if (!res.ok) return alert('No se pudieron cargar los datos.');
+            const data = await res.json();
+
+            document.getElementById('folio').value = data.folio;
+            document.getElementById('cliente').value = data.cliente;
+            document.getElementById('responsable').value = data.responsable || '';
+            document.getElementById('marca').value = data.marca;
+            document.getElementById('proyecto').value = data.proyecto;
+            document.getElementById('total').value = data.total;
+            document.getElementById('resumen').value = data.resumen;
+
+            document.getElementById('modulosContainer').innerHTML = '';
+            data.items_alcance.forEach(m => agregarModulo(m.modulo, m.descripcion, m.tipo));
+
+            document.getElementById('costosContainer').innerHTML = '';
+            if (data.desglose_costos) {
+                data.desglose_costos.forEach(c => agregarConceptoCosto(c.concepto, c.descripcion, c.precio));
+            }
+
+            document.getElementById('fasesContainer').innerHTML = '';
+            data.fases.forEach(f => agregarFase(f.nombre, f.descripcion, f.monto));
+
+            document.getElementById('terminosContainer').innerHTML = '';
+            data.terminos.forEach(t => agregarTermino(t));
+
+            if (docId.startsWith('BRIEF')) {
+                cambiarModo('BRIEF');
+            } else if (docId.startsWith('CONTRATO')) {
+                cambiarModo('CONTRATO');
+            } else {
+                cambiarModo('COTIZACION');
+            }
+            alert(`¡Datos de ${docId} cargados!`);
+        }
+
+        async function eliminar(docId) {
+            if (confirm(`¿Eliminar ${docId}?`)) {
+                await fetch(`/documentos/${docId}`, { method: 'DELETE' });
+                cargarLista();
+            }
+        }
+
+        document.getElementById('cotizacionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = obtenerPayload();
+
+            const res = await fetch('/documentos/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                alert('¡Documento guardado y generado correctamente!');
+                cargarLista();
+                window.open(`/documentos/${data.file_id}`, '_blank');
+            } else {
+                alert('Error al guardar el documento.');
+            }
+        });
+
+        // Inicialización
+        inicializarFechaHoy();
+        
+        // Cargar módulos por defecto
+        agregarModulo('Actualización Total de Galería', 'Sustitución completa de fotos por material actualizado WebP.', 'ACTUALIZACIÓN');
+        agregarModulo('Módulo de Preguntas Frecuentes (FAQ)', 'Sección interactiva desplegable tipo acordeón.', 'NUEVO');
+        agregarModulo('Botón Flotante Persistente de WhatsApp', 'Acceso directo fijado en pantalla con mensaje predeterminado.', 'NUEVO');
+        agregarModulo('Formulario de Contacto & Cotización', 'Módulo para captar datos clave de prospectos.', 'NUEVO');
+        agregarModulo('Integración de Redes & Enlaces', 'Accesos oficiales a redes sociales y botones por paquete.', 'ACTUALIZACIÓN');
+        agregarModulo('Optimización Móvil & Rendimiento', 'Ajuste responsivo integral para carga instantánea.', 'ACTUALIZACIÓN');
+
+        agregarConceptoCosto('Desarrollo y Maquetación Web', 'Estructura responsiva, módulos y optimización.', 3800);
+        agregarConceptoCosto('Hospedaje Web (Hosting SSD)', 'Servidor de alto rendimiento por 1 año.', 800);
+        agregarConceptoCosto('Dominio Personalizado (.com / .mx)', 'Registro y certificado SSL por 1 año.', 400);
+
+        agregarTermino('El cliente proporcionará las fotografías en alta resolución y el texto para las preguntas frecuentes al inicio de cada fase.');
+        agregarTermino('Incluye 15 días naturales de garantía y soporte técnico post-entrega para ajustes menores.');
+
+        // Secciones por defecto del brief
+        const seccionesBase = [
+            "Inicio / Portada", "Quiénes somos", "Natación", "Nado sincronizado", "Waterpolo",
+            "Categorías y horarios", "Entrenadores / Staff", "Instalaciones", "Noticias o eventos",
+            "Galería de fotografías", "Contacto / Ubicación", "Preguntas frecuentes (FAQ)"
+        ];
+        seccionesBase.forEach(s => agregarCheckboxBrief(s, false));
+
+        actualizarFasesSegunModalidad();
+        cargarLista();
+    </script>
+</body>
+</html>

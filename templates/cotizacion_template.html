@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; font-size: 9pt; line-height: 1.4; padding: 12mm 14mm; }
+    .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #0f172a; padding-bottom: 8px; }
+    .header-table td { vertical-align: middle; }
+    .logo-container { width: 65px; }
+    .logo-img { width: 55px; height: 55px; object-fit: cover; border-radius: 50%; display: block; }
+    .brand-title { font-size: 16pt; font-weight: 800; color: #0f172a; text-transform: uppercase; margin: 0; line-height: 1.1; }
+    .brand-subtitle { font-size: 8.5pt; color: #0284c7; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+    .client-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; padding: 8px 12px; margin: 10px 0; border-radius: 4px; }
+    .client-card td { font-size: 8.5pt; padding: 1.5px 0; }
+    .section-title { font-size: 10pt; color: #0f172a; border-left: 3.5px solid #0284c7; padding-left: 6px; margin: 10px 0 6px 0; text-transform: uppercase; }
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    .data-table th { background-color: #0f172a; color: white; padding: 5px 8px; font-size: 8pt; text-align: left; }
+    .data-table td { border-bottom: 1px solid #e2e8f0; padding: 5px 8px; font-size: 8.3pt; }
+    .data-table tr:nth-child(even) td { background-color: #f8fafc; }
+    .tag-new { display: inline-block; background-color: #dbeafe; color: #0369a1; font-size: 6.8pt; font-weight: 800; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; margin-left: 4px; }
+    .tag-update { display: inline-block; background-color: #f1f5f9; color: #475569; font-size: 6.8pt; font-weight: 800; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; margin-left: 4px; }
+    .pricing-box { background-color: #0f172a; color: white; border-radius: 4px; padding: 8px 12px; margin: 6px 0 10px 0; }
+    .price-value { font-size: 15pt; font-weight: 800; color: #38bdf8; text-align: right; }
+    .payment-pill { background-color: #e0f2fe; color: #0369a1; font-weight: 800; padding: 2px 6px; border-radius: 3px; font-size: 7.5pt; }
+    .resumen-texto { margin: 0 0 6px 0; color: #334155; font-size: 8.5pt; }
+    .notes-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3.5px solid #0284c7; padding: 6px 10px; border-radius: 4px; font-size: 7.8pt; color: #334155; margin-top: 6px; }
+    .notes-box ul { margin: 2px 0 0 12px; padding: 0; }
+</style>
+</head>
+<body>
+    <table class="header-table">
+        <tr>
+            {% if logo_base64 %}
+            <td class="logo-container">
+                <img src="{{ logo_base64 }}" class="logo-img" alt="Logo">
+            </td>
+            <td style="padding-left: 10px;">
+            {% else %}
+            <td>
+            {% endif %}
+                <div class="brand-title">{{ empresa }}</div>
+                <div class="brand-subtitle">{{ subtitulo_doc }}</div>
+            </td>
+            <td style="text-align: right; font-size: 8pt;">
+                <strong>Fecha:</strong> {{ fecha }}<br>
+                <strong>Folio:</strong> {{ folio }}<br>
+                <strong>Validez:</strong> {{ validez }}
+            </td>
+        </tr>
+    </table>
+
+    <div class="client-card">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 50%;"><strong>Cliente:</strong> {{ cliente }}</td>
+                <td style="width: 50%;"><strong>Proyecto:</strong> {{ proyecto }}</td>
+            </tr>
+            <tr>
+                <td><strong>Marca:</strong> {{ marca }}</td>
+                <td><strong>Modalidad:</strong> {{ modalidad }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h3 class="section-title">1. Resumen y Alcance</h3>
+    <p class="resumen-texto">{{ resumen }}</p>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 34%;">Módulo / Requerimiento</th>
+                <th style="width: 66%;">Descripción Funcional</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items_alcance %}
+            <tr>
+                <td>
+                    <strong>{{ item.modulo }}</strong>
+                    {% if item.tipo == "NUEVO" %}
+                        <span class="tag-new">NUEVO</span>
+                    {% elif item.tipo == "ACTUALIZACIÓN" %}
+                        <span class="tag-update">ACTUALIZACIÓN</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.descripcion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 class="section-title">2. Desglose de Inversión</h3>
+    {% if desglose_costos and desglose_costos|length > 0 %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 35%;">Concepto</th>
+                <th style="width: 45%;">Detalle</th>
+                <th style="width: 20%; text-align: right;">Costo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in desglose_costos %}
+            <tr>
+                <td><strong>{{ item.concepto }}</strong></td>
+                <td style="color: #64748b;">{{ item.descripcion }}</td>
+                <td style="text-align: right; font-weight: 600;">${{ "%.2f"|format(item.precio) }} MXN</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="pricing-box">
+        <table style="width:100%;">
+            <tr>
+                <td style="font-size: 9pt; color: #94a3b8;">Inversión Total del Proyecto:</td>
+                <td class="price-value">${{ "%.2f"|format(total) }} MXN</td>
+            </tr>
+        </table>
+    </div>
+
+    <h3 class="section-title">3. Fases y Pagos</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 25%;">Fase</th>
+                <th style="width: 50%;">Entregables</th>
+                <th style="width: 25%; text-align: right;">Monto Asignado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fase in fases %}
+            <tr>
+                <td><strong>{{ fase.nombre }}</strong></td>
+                <td>{{ fase.descripcion }}</td>
+                <td style="text-align: right;"><span class="payment-pill">${{ "%.2f"|format(fase.monto) }} MXN</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if terminos and terminos|length > 0 %}
+    <div class="notes-box">
+        <strong>Términos & Notas Generales:</strong>
+        <ul>
+            {% for termino in terminos %}
+            <li>{{ termino }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</body>
+</html>
